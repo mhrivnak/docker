@@ -7,7 +7,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/docker/distribution/digest"
@@ -219,13 +218,8 @@ func (r *Session) GetV2ImageBlobReader(ep *Endpoint, imageName string, dgst dige
 		}
 		return nil, 0, httputils.NewHTTPRequestError(fmt.Sprintf("Server error: %d trying to pull %s blob - %s", res.StatusCode, imageName, dgst), res)
 	}
-	lenStr := res.Header.Get("Content-Length")
-	l, err := strconv.ParseInt(lenStr, 10, 64)
-	if err != nil {
-		return nil, 0, err
-	}
 
-	return res.Body, l, err
+	return res.Body, res.ContentLength, err
 }
 
 // Push the image to the server for storage.
